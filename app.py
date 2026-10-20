@@ -89,12 +89,11 @@ if st.button("🚀 Generate Content Now"):
                     break  # Success! Loop se bahar
                 except Exception as e:
                     last_error = e
-                    # Agar 503 ya high demand error hai, toh 2 second ruk kar dobara try karega
                     if "503" in str(e) or "unavailable" in str(e).lower():
                         time.sleep(2)
                         continue
                     else:
-                        break  # Doosra error hone par loop rok do
+                        break
             
             if response_text:
                 st.subheader(f"🎉 Aapka Content ({selected_lang}) Tayar Hai:")
@@ -103,4 +102,4 @@ if st.button("🚀 Generate Content Now"):
                 st.error(f"Google server par abhi bohot heavy traffic hai. Kripya 10 seconds baad dobara click karein. Error details: {last_error}")
 
 # Footer
-st.markdown("<br><hr><center><p style='color: #94a3b8; font-size: 12px;'>Powered by Hulku Engine © 2026</p></center>", unsafe_allow_html=True)p></center>", unsafe_allow_html=True)
+st.markdown("<br><hr><center><p style='color: #94a3b8; font-size: 12px;'>Powered by Hulku Engine © 2026</p></center>", unsafe_allow_html=True)
