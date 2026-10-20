@@ -1,6 +1,7 @@
 import streamlit as st
 from google import genai
 import os
+import time
 from dotenv import load_dotenv
 
 # Environment variables load karein
@@ -15,7 +16,7 @@ if API_KEY:
     except Exception as e:
         st.error(f"Client initialization error: {e}")
 else:
-    st.error("⚠️ Security Alert: API Key nahi mili! .env file check karein.")
+    st.error("⚠️ Security Alert: API Key nahi mili! Secrets check karein.")
 
 # Page Configuration
 st.set_page_config(page_title="Hulku - AI Creator Studio", page_icon="⚡", layout="centered")
@@ -59,7 +60,7 @@ if st.button("🚀 Generate Content Now"):
     if user_topic.strip() == "":
         st.warning("Pehle koi topic toh likhiye bhai!")
     elif client is None:
-        st.error("API client configure nahi hai. Please check API key.")
+        st.error("API client configure nahi hai. Secrets mein GEMINI_API_KEY check karein.")
     else:
         st.session_state.generation_count += 1
         
@@ -71,18 +72,35 @@ if st.button("🚀 Generate Content Now"):
                 </div>
             """, unsafe_allow_html=True)
             
-            # Prompt mein Language dynamically pass karna
             prompt = f"Create a catchy, viral, and engaging {content_type} based on this topic: {user_topic}. Write the final output strictly in {selected_lang} language. Use emojis and relevant hashtags."
             
-            try:
-                response = client.models.generate_content(
-                    model='gemini-3.8-flash',
-                    contents=prompt,
-                )
+            # 🔁 Retry Logic for gemini-3.8-flash (Handles temporary 503 traffic spikes)
+            max_retries = 3
+            response_text = None
+            last_error = None
+
+            for attempt in range(max_retries):
+                try:
+                    response = client.models.generate_content(
+                        model='gemini-3.8-flash',
+                        contents=prompt,
+                    )
+                    response_text = response.text
+                    break  # Success! Loop se bahar
+                except Exception as e:
+                    last_error = e
+                    # Agar 503 ya high demand error hai, toh 2 second ruk kar dobara try karega
+                    if "503" in str(e) or "unavailable" in str(e).lower():
+                        time.sleep(2)
+                        continue
+                    else:
+                        break  # Doosra error hone par loop rok do
+            
+            if response_text:
                 st.subheader(f"🎉 Aapka Content ({selected_lang}) Tayar Hai:")
-                st.success(response.text)
-            except Exception as e:
-                st.error(f"Kuch error aa gaya: {e}")
+                st.success(response_text)
+            else:
+                st.error(f"Google server par abhi bohot heavy traffic hai. Kripya 10 seconds baad dobara click karein. Error details: {last_error}")
 
 # Footer
-st.markdown("<br><hr><center><p style='color: #94a3b8; font-size: 12px;'>Powered by Hulku Engine © 2026</p></center>", unsafe_allow_html=True)
+st.markdown("<br><hr><center><p style='color: #94a3b8; font-size: 12px;'>Powered by Hulku Engine © 2026</p></center>", unsafe_allow_html=True)p></center>", unsafe_allow_html=True)
