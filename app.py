@@ -64,7 +64,7 @@ if st.button("🚀 Generate Content Now"):
     else:
         st.session_state.generation_count += 1
         
-        with st.spinner(f"✨ Hulku AI {selected_lang} mein magic create kar raha hai..."):
+        with st.spinner(f"✨ Hulku AI {selected_lang} mein fast magic create kar raha hai..."):
             # Sponsored Ad Display
             st.markdown("""
                 <div style='background: rgba(236, 72, 153, 0.1); border: 1px dashed #ec4899; padding: 12px; border-radius: 8px; text-align: center; margin-bottom: 15px;'>
@@ -72,9 +72,9 @@ if st.button("🚀 Generate Content Now"):
                 </div>
             """, unsafe_allow_html=True)
             
-            prompt = f"Create a catchy, viral, and engaging {content_type} based on this topic: {user_topic}. Write the final output strictly in {selected_lang} language. Use emojis and relevant hashtags."
+            prompt = f"Create a short, catchy, and viral {content_type} based on: {user_topic}. Write strictly in {selected_lang}. Use emojis and hashtags."
             
-            # 🔁 Retry Logic for gemini-3.8-flash (Handles temporary 503 traffic spikes)
+            # 🚀 Fast Generation with Retry Logic
             max_retries = 3
             response_text = None
             last_error = None
@@ -86,11 +86,11 @@ if st.button("🚀 Generate Content Now"):
                         contents=prompt,
                     )
                     response_text = response.text
-                    break  # Success! Loop se bahar
+                    break
                 except Exception as e:
                     last_error = e
                     if "503" in str(e) or "unavailable" in str(e).lower():
-                        time.sleep(2)
+                        time.sleep(1)
                         continue
                     else:
                         break
@@ -99,7 +99,7 @@ if st.button("🚀 Generate Content Now"):
                 st.subheader(f"🎉 Aapka Content ({selected_lang}) Tayar Hai:")
                 st.success(response_text)
             else:
-                st.error(f"Google server par abhi bohot heavy traffic hai. Kripya 10 seconds baad dobara click karein. Error details: {last_error}")
+                st.error(f"Server busy hai, thodi der baad try karein: {last_error}")
 
 # Footer
 st.markdown("<br><hr><center><p style='color: #94a3b8; font-size: 12px;'>Powered by Hulku Engine © 2026</p></center>", unsafe_allow_html=True)
